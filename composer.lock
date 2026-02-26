@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4063dc8a48f723dea7062d283c715e5a",
+    "content-hash": "09e1ebf73c3f7b7e8a1e826ac59e7162",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -213,6 +213,10 @@
                 "omnipay",
                 "payments"
             ],
+            "support": {
+                "issues": "https://github.com/ignited/laravel-omnipay/issues",
+                "source": "https://github.com/ignited/laravel-omnipay/tree/master"
+            },
             "time": "2017-02-08T19:23:44+00:00"
         },
         {
@@ -700,5 +704,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }

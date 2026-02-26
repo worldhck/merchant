@@ -14,7 +14,7 @@
       "psr-4": { "Arbory\\Merchant\\" : "src/" }
     },
     "require": {
-        "ignited/laravel-omnipay": "2.*"
+        "ignited/laravel-omnipay": "2.*|3.*"
     }
 
 }
