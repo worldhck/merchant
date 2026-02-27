@@ -40,13 +40,7 @@ class PaymentsService
                 $response = $purchaseRequest->send();
                 $this->logTransactionResponse($transaction, $response->getData());
 
-                if ($response->isSuccessful()) {
-                    // Save transactions reference, if gateway responds with it
-                    $this->saveTransactionReference($transaction, $response);
-                    $this->setTransactionProcessed($transaction);
-                    return new Response(true, $transaction);
-
-                } elseif ($response->isRedirect() || $response->isTransparentRedirect()) {
+                if ($response->isRedirect() || $response->isTransparentRedirect()) {
                     // Save transactions reference, if gateway responds with it
                     $this->saveTransactionReference($transaction, $response);
                     $this->setTransactionAccepted($transaction);
@@ -274,7 +268,6 @@ class PaymentsService
      * 1. if gateway only accepts specific language codes, default or the closest one to $suggestedLanguage will be returned
      * 2. if gateway has custom language codes, then $suggestedLanguage will be returned and used
      *
-     * @param  GatewayInterface  $gateway
      * @param  string  $suggestedLanguage  //2 characters code for language https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
      * @return string
      */
