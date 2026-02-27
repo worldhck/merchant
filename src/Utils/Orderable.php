@@ -20,17 +20,15 @@ interface Orderable
 
     /**
      * Get the item price without vat
-     *
-     * @return int
      */
-    public function getPrice() : int;
+    public function getPrice(): int;
 
     /**
      * Get the VAT tax value like (21.5% => 21.5)
      *
      * @return int
      */
-    public function getVatRate() : float;
+    public function getVatRate(): float;
 
     /**
      * Get the item summary
@@ -41,10 +39,8 @@ interface Orderable
 
     /**
      * Get the item options
-     *
-     * @return array
      */
-    public function getOptions() : array;
+    public function getOptions(): array;
 
     /**
      * Get the item quantity
@@ -55,9 +51,6 @@ interface Orderable
 
     /**
      * Get the items total price without VAT
-     *
-     * @return int
      */
-    public function getTotal() : int;
-
+    public function getTotal(): int;
 }

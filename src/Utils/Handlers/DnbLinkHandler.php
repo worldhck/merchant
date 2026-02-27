@@ -2,18 +2,18 @@
 
 namespace Arbory\Merchant\Utils\Handlers;
 
-use Illuminate\Http\Request;
 use Arbory\Merchant\Models\Transaction;
 use Arbory\Merchant\Utils\GatewayHandler;
+use Illuminate\Http\Request;
 
 class DnbLinkHandler extends GatewayHandler
 {
-    public function getTransactionReference(Request $request) : string
+    public function getTransactionReference(Request $request): string
     {
         return $request->get('VK_REF', '');
     }
 
-    public function getPurchaseArguments(Transaction $transaction) : array
+    public function getPurchaseArguments(Transaction $transaction): array
     {
         return [
             'transactionReference' => $transaction->token_id
@@ -28,9 +28,10 @@ class DnbLinkHandler extends GatewayHandler
             'ru' => 'RUS',
             'en' => 'ENG'
         ];
-        if(isset($codeToSupportedLang[$suggestedLanguage])){
+        if (isset($codeToSupportedLang[$suggestedLanguage])) {
             return $codeToSupportedLang[$suggestedLanguage];
         }
+
         return $defaultLangauge;
     }
 }

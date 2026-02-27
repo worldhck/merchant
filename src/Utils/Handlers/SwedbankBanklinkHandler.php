@@ -5,6 +5,7 @@ namespace Arbory\Merchant\Utils\Handlers;
 use Arbory\Merchant\Models\Transaction;
 use Arbory\Merchant\Utils\GatewayHandler;
 use Illuminate\Http\Request;
+use Omnipay\SwedbankBanklink\Utils\ProviderResolver;
 
 class SwedbankBanklinkHandler extends GatewayHandler
 {
@@ -81,7 +82,7 @@ class SwedbankBanklinkHandler extends GatewayHandler
     private function getProvider(Transaction $transaction): string
     {
         $order = $transaction->order;
-        return \Omnipay\SwedbankBanklink\Utils\ProviderResolver::resolve($order->payment_type ?? null);
+        return ProviderResolver::resolve($order->payment_type ?? null);
     }
 
     /**

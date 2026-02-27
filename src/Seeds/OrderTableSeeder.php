@@ -4,8 +4,8 @@ namespace Arbory\Merchant\Seeds;
 
 use App\Order\OrderStatusType;
 use Arbory\Merchant\Models\Order;
+use DB;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class OrderTableSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class OrderTableSeeder extends Seeder
     public function run()
     {
         $model = new Order();
-        \DB::table($model->getTable())->insert([
+        DB::table($model->getTable())->insert([
             'id' => 1,
             'status' => OrderStatusType::STATUS_CART,
             'total' => 100,

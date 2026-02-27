@@ -2,25 +2,17 @@
 
 namespace Arbory\Merchant\Utils\Handlers;
 
-use Illuminate\Http\Request;
 use Arbory\Merchant\Models\Transaction;
 use Arbory\Merchant\Utils\GatewayHandler;
+use Illuminate\Http\Request;
 
 class SebLinkHandler extends GatewayHandler
 {
-    /**
-     * @param Request $request
-     * @return string
-     */
     public function getTransactionReference(Request $request): string
     {
         return $request->get('IB_PAYMENT_ID', '');
     }
 
-    /**
-     * @param Transaction $transaction
-     * @return array
-     */
     public function getPurchaseArguments(Transaction $transaction): array
     {
         return [
@@ -28,10 +20,6 @@ class SebLinkHandler extends GatewayHandler
         ];
     }
 
-    /**
-     * @param string $suggestedLanguage
-     * @return string
-     */
     public function getLanguage(string $suggestedLanguage): string
     {
         $defaultLangauge = 'LAT';
@@ -43,6 +31,7 @@ class SebLinkHandler extends GatewayHandler
         if (isset($codeToSupportedLang[$suggestedLanguage])) {
             return $codeToSupportedLang[$suggestedLanguage];
         }
+
         return $defaultLangauge;
     }
 }

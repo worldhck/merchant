@@ -1,8 +1,8 @@
 <?php
+
 namespace Arbory\Merchant\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arbory\Merchant\Models\Order;
 
 class OrderLine extends Model
 {

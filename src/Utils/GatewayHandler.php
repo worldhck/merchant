@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 abstract class GatewayHandler
 {
-    public abstract function getTransactionReference(Request $request): string;
+    abstract public function getTransactionReference(Request $request): string;
 
     public function getCompletePurchaseArguments(Transaction $transaction, Request $request): array
     {
@@ -25,9 +25,7 @@ abstract class GatewayHandler
     }
 
     /**
-     *
-     * @param string $suggestedLanguage 2 character code, used standard - https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-     * @return string
+     * @param  string  $suggestedLanguage  2 character code, used standard - https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
      */
     public function getLanguage(string $suggestedLanguage): string
     {

@@ -5,35 +5,35 @@ namespace Arbory\Merchant;
 use Arbory\Merchant\Models\Order;
 use Arbory\Merchant\Models\Transaction;
 use Arbory\Merchant\Utils\GatewayHandlerFactory;
+use Arbory\Merchant\Utils\Response;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
+use Omnipay;
 use Omnipay\Common\GatewayInterface;
 use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\ResponseInterface;
-use Illuminate\Support\Facades\Log;
-use Arbory\Merchant\Utils\Response;
 
 class PaymentsService
 {
-
     /**
-     * @param Order $order
-     * @param string $gatewayName
-     * @param array $customArgs
      * @return Response redirects or returns Response with status and orders transaction
      */
     public function purchase(Order $order, string $gatewayName, array $customArgs)
     {
         try {
             // Will throw exception on nonexistent gateway
-            $gatewayObj = \Omnipay::gateway($gatewayName);
+            $gatewayObj = Omnipay::gateway($gatewayName);
 
             /** @var Transaction $transaction */
             $transaction = $this->createTransaction($order, $gatewayObj);
             $this->setPurchaseArgs($transaction, $gatewayObj, $customArgs);
             $this->setTransactionInitialized($transaction);
 
-            try{
+            try {
                 $purchaseRequest = $gatewayObj->purchase($transaction->options['purchase']);
                 $this->logTransactionRequest($transaction, $purchaseRequest->getData());
 
@@ -52,17 +52,18 @@ class PaymentsService
                     $this->setTransactionAccepted($transaction);
                     $this->logTransactionRequest($transaction, ['redirect to merchant..']);
                     $response->redirect();
-                }else{
+                } else {
                     // Payment failed
                     $this->logTransactionError($transaction, $response->getMessage());
                 }
-            }catch (\Exception $e){
+            } catch (Exception $e) {
                 // Validation or other errors
                 $this->logTransactionError($transaction, $e->getMessage());
             }
 
-            //Log response error
+            // Log response error
             $this->setTransactionError($transaction);
+
             return new Response(false, $transaction);
 
         } catch (\Exception $e) {
@@ -73,23 +74,21 @@ class PaymentsService
         return new Response(false);
     }
 
-
     /**
      * Returns transaction if payment completed or false if payment failed
-     * @param string $gatewayName
-     * @param Request $request
+     *
      * @return Response
      */
     public function completePurchase(string $gatewayName, Request $request)
     {
         try {
-            $gatewayObj = \Omnipay::gateway($gatewayName);
+            $gatewayObj = Omnipay::gateway($gatewayName);
 
             /** @var Transaction $transaction */
             $transaction = $this->getRequestsTransaction($gatewayObj, $request);
             $this->logTransactionResponse($transaction, $request->input());
 
-            try{
+            try {
                 // Send complete request
                 $this->setCompletionArgs($transaction, $gatewayObj, $request);
                 $completeRequest = $gatewayObj->completePurchase($transaction->options['completePurchase']);
@@ -101,21 +100,22 @@ class PaymentsService
 
                 if ($response->isSuccessful()) {
                     $this->setTransactionProcessed($transaction);
-                    return new Response(true, $transaction);
-                }else{
-                    $this->logTransactionError($transaction, $response->getMessage());
-                }
 
-            }catch (\Exception $e){
+                    return new Response(true, $transaction);
+                }
+                $this->logTransactionError($transaction, $response->getMessage());
+
+            } catch (Exception $e) {
                 // Validation or other errors
                 $this->logTransactionError($transaction, $e->getMessage());
             }
 
-            //Log response error
+            // Log response error
             $this->setTransactionError($transaction);
+
             return new Response(false, $transaction);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log error in file, we have no transaction to log this to
             \Log::warning('PaymentService:completePurchase:'.$e->getMessage());
         }
@@ -125,20 +125,19 @@ class PaymentsService
 
     /**
      * Reverse transaction (master card specific), for technical errors only otherwise use refund
-     * @param string $gatewayName
-     * @param Transaction $transaction
-     * @param $amount
+     *
      * @return Response
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function reverseTransaction(string $gatewayName, Transaction $transaction, $amount)
     {
-        $gatewayObj = \Omnipay::gateway($gatewayName);
+        $gatewayObj = Omnipay::gateway($gatewayName);
 
-        //this is custom method gateways method
-        //TODO: combine reverse with refund and determine correct response via passed option value?
-        if(!method_exists($gatewayObj, 'reverse')){
-            throw new \Exception("$transaction->gateway does not support transaction reversal");
+        // this is custom method gateways method
+        // TODO: combine reverse with refund and determine correct response via passed option value?
+        if (!method_exists($gatewayObj, 'reverse')) {
+            throw new Exception("$transaction->gateway does not support transaction reversal");
         }
 
         $this->setReversalArgs($transaction, $gatewayObj, ['amount' => $amount]);
@@ -149,8 +148,8 @@ class PaymentsService
         $response = $request->send();
         $this->logTransactionResponse($transaction, $response->getData());
 
-        if($response->isSuccessful()){
-            //mark transaction as reversed
+        if ($response->isSuccessful()) {
+            // mark transaction as reversed
             $transaction->status = Transaction::STATUS_REVERSED;
             $transaction->save();
 
@@ -158,16 +157,16 @@ class PaymentsService
         }
 
         $this->logTransactionError($transaction, $response->getData());
+
         return new Response(false, $transaction);
     }
 
-
     public function closeDay(string $gatewayName)
     {
-        $gatewayObj = \Omnipay::gateway($gatewayName);
-        //this is custom method gateways method
-        if(!method_exists($gatewayObj, 'closeDay')){
-            throw new \Exception("$gatewayName does not support business day closing");
+        $gatewayObj = Omnipay::gateway($gatewayName);
+        // this is custom method gateways method
+        if (!method_exists($gatewayObj, 'closeDay')) {
+            throw new Exception("$gatewayName does not support business day closing");
         }
         /** @var AbstractRequest $request */
         $request = $gatewayObj->closeDay();
@@ -176,10 +175,9 @@ class PaymentsService
         \Log::info('PaymentService:closeDay - ' . print_r($response->getData(), 1));
         return new Response($response->isSuccessful());
     }
+
     /**
      * Some gateways will send their token reference (gateways own token for transaction)
-     *
-     * @param ResponseInterface $response
      */
     private function saveTransactionReference(Transaction $transaction, ResponseInterface $response)
     {
@@ -200,7 +198,7 @@ class PaymentsService
         $transaction->save();
     }
 
-    private function getRequestsTransaction(GatewayInterface $gateway, Request $request) : Transaction
+    private function getRequestsTransaction(GatewayInterface $gateway, Request $request): Transaction
     {
         $gatewayClassName = get_class($gateway);
         $gatewayHandler = (new GatewayHandlerFactory())->create($gateway);
@@ -211,7 +209,7 @@ class PaymentsService
             return Transaction::where('token_reference', $transactionRef)->where('gateway', $gatewayClassName)->firstOrFail();
         }
 
-        throw new \InvalidArgumentException('Transaction not found');
+        throw new InvalidArgumentException('Transaction not found');
     }
 
     private function setCompletionArgs(Transaction $transaction, GatewayInterface $gatewayObj, Request $request)
@@ -231,7 +229,7 @@ class PaymentsService
 
         // These arguments are common for all gateways
         $commonArgs = [
-            'language' => $transaction->language_code, //gateway dependant
+            'language' => $transaction->language_code, // gateway dependant
             'amount' => $this->transformToFloat($transaction->amount),
             'currency' => $transaction->currency_code
         ];
@@ -245,10 +243,12 @@ class PaymentsService
         $transaction->save();
     }
 
-    //Int to float with 2 numbers after floating point
-    private function transformToFloat($intValue){
+    // Int to float with 2 numbers after floating point
+    private function transformToFloat($intValue)
+    {
         // round and float
-        $float = round(($intValue/100), 2, PHP_ROUND_HALF_EVEN);
+        $float = round(($intValue / 100), 2, PHP_ROUND_HALF_EVEN);
+
         return number_format($float, 2, '.', '');
     }
 
@@ -261,7 +261,7 @@ class PaymentsService
             'gateway' => get_class($gateway),
             'options' => [], // will be populated on every request
             'amount' => $order->total,
-            'token_id' => str_random('20'), //TODO: Do we need internal token?
+            'token_id' => Str::random('20'), // TODO: Do we need internal token?
             'description' => '',
             'language_code' => $this->getGatewaysLanguage($gateway, $order->language),
             'currency_code' => $order->payment_currency,
@@ -273,13 +273,13 @@ class PaymentsService
      * Gets gateways supported language code. $suggestedLanguage serves two purposes :
      * 1. if gateway only accepts specific language codes, default or the closest one to $suggestedLanguage will be returned
      * 2. if gateway has custom language codes, then $suggestedLanguage will be returned and used
-     * @param GatewayInterface $gateway
-     * @param string $suggestedLanguage  //2 characters code for language https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+     *
+     * @param  string  $suggestedLanguage  //2 characters code for language https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
      * @return string
      */
     protected function getGatewaysLanguage(GatewayInterface $gateway, string $suggestedLanguage)
     {
-         return (new GatewayHandlerFactory())->create($gateway)->getLanguage($suggestedLanguage);
+        return (new GatewayHandlerFactory())->create($gateway)->getLanguage($suggestedLanguage);
     }
 
     protected function setTransactionInitialized(Transaction $transaction)
@@ -305,7 +305,6 @@ class PaymentsService
         $transaction->status = Transaction::STATUS_ERROR;
         $transaction->save();
     }
-
 
     protected function logTransactionError(Transaction $transaction, $msg)
     {

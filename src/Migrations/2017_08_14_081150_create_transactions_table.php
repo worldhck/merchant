@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTransactionsTable extends Migration
 {
@@ -30,7 +30,7 @@ class CreateTransactionsTable extends Migration
             $table->string('currency_code');
             $table->timestamps();
 
-            //add indexes
+            // add indexes
             $table->unique('token_id'); // unique per application
             $table->index('object_id');
         });

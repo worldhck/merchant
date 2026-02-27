@@ -4,18 +4,14 @@ namespace Arbory\Merchant\Models;
 
 use App\OrderHelper;
 use Illuminate\Database\Eloquent\Model;
-use Arbory\Merchant\Utils\Orderable;
-use Arbory\Merchant\Models\OrderLine;
 
 /**
  * Class Order
  *
- * @package Arbory\Merchant\Models
  * @mixin \Eloquent
  */
 class Order extends Model
 {
-
     protected $table = 'merchant_orders';
 
     protected $fillable = [

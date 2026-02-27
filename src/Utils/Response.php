@@ -7,9 +7,10 @@ use Arbory\Merchant\Models\Transaction;
 class Response
 {
     private $isSuccessful;
+
     private $transaction;
 
-    public function __construct(bool $isSuccessful, Transaction $transaction = null)
+    public function __construct(bool $isSuccessful, ?Transaction $transaction = null)
     {
         $this->isSuccessful = $isSuccessful;
         $this->transaction = $transaction;

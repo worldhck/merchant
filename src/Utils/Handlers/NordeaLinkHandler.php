@@ -2,18 +2,18 @@
 
 namespace Arbory\Merchant\Utils\Handlers;
 
-use Illuminate\Http\Request;
 use Arbory\Merchant\Models\Transaction;
 use Arbory\Merchant\Utils\GatewayHandler;
+use Illuminate\Http\Request;
 
 class NordeaLinkHandler extends GatewayHandler
 {
-    public function getTransactionReference(Request $request) : string
+    public function getTransactionReference(Request $request): string
     {
         return $request->get('SOLOPMT_RETURN_REF', '');
     }
 
-    public function getPurchaseArguments(Transaction $transaction) : array
+    public function getPurchaseArguments(Transaction $transaction): array
     {
         return [
             'transactionReference' => $transaction->token_id,
@@ -30,9 +30,10 @@ class NordeaLinkHandler extends GatewayHandler
             'lv' => 6,
             'lt' => 7
         ];
-        if(isset($codeToSupportedLang[$suggestedLanguage])){
+        if (isset($codeToSupportedLang[$suggestedLanguage])) {
             return $codeToSupportedLang[$suggestedLanguage];
         }
+
         return $defaultLangauge;
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddClientIpToTransactions extends Migration
 {
@@ -26,7 +26,7 @@ class AddClientIpToTransactions extends Migration
     public function down()
     {
         Schema::table('merchant_transactions', function (Blueprint $table) {
-            $table->dropColumn( 'client_ip' );
+            $table->dropColumn('client_ip');
         });
     }
 }

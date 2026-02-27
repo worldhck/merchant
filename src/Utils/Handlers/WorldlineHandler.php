@@ -2,11 +2,11 @@
 
 namespace Arbory\Merchant\Utils\Handlers;
 
-use Illuminate\Http\Request;
 use Arbory\Merchant\Models\Transaction;
 use Arbory\Merchant\Utils\GatewayHandler;
+use Illuminate\Http\Request;
 
-class FirstDataLatviaHandler extends GatewayHandler
+class WorldlineHandler extends GatewayHandler
 {
     public function getReversalArguments(Transaction $transaction): array
     {
@@ -18,6 +18,7 @@ class FirstDataLatviaHandler extends GatewayHandler
     public function getTransactionReference(Request $request): string
     {
         $transactionRef = $request->get('trans_id', '');
+
         return $transactionRef;
     }
 
@@ -25,6 +26,7 @@ class FirstDataLatviaHandler extends GatewayHandler
     {
         $purchaseParameters = $transaction->options['purchase'];
         $purchaseParameters['transactionReference'] = $transaction->token_reference;
+
         return $purchaseParameters;
     }
 

@@ -1,20 +1,20 @@
 {
-    "name": "arbory/merchant",
-    "description": "Arbory merchant module",
-    "type": "project",
-
-    "authors": [
-        {
-            "name": "Martins Ungurs",
-            "email": "martins.ungurs@cube.lv"
-        }
-    ],
-    "repositories": [],
-    "autoload": {
-      "psr-4": { "Arbory\\Merchant\\" : "src/" }
-    },
-    "require": {
-        "ignited/laravel-omnipay": "2.*|3.*"
+  "name": "arbory/merchant",
+  "description": "Arbory merchant module",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Martins Ungurs",
+      "email": "martins.ungurs@cube.lv"
     }
-
+  ],
+  "repositories": [],
+  "autoload": {
+    "psr-4": {
+      "Arbory\\Merchant\\": "src/"
+    }
+  },
+  "require": {
+    "ignited/laravel-omnipay": "3.6.0"
+  }
 }
